@@ -23,6 +23,8 @@ class RewriteHandler {
     public function register(): void {
         add_action('init', [$this, 'add_rewrite_rules']);
         add_filter('query_vars', [$this, 'add_query_vars']);
+        // Accept negotiation registered first, runs first at same priority
+        add_action('template_redirect', [$this, 'handle_accept_negotiation'], 1);
         add_action('template_redirect', [$this, 'handle_markdown_request'], 1);
     }
 
@@ -135,6 +137,88 @@ class RewriteHandler {
 
         // From CONTEXT.md: Security header to prevent MIME sniffing
         header('X-Content-Type-Options: nosniff');
+    }
+
+    /**
+     * Handle Accept header content negotiation.
+     *
+     * Redirects to .md URL when Accept: text/markdown is present on HTML URLs.
+     * URL always wins over Accept header - .md URLs serve markdown regardless.
+     *
+     * @return void
+     */
+    public function handle_accept_negotiation(): void {
+        // Skip if already a markdown request (URL wins over Accept header)
+        if (get_query_var('markdown_request')) {
+            return;
+        }
+
+        // Check Accept header for text/markdown
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        if (strpos($accept, 'text/markdown') === false) {
+            return;
+        }
+
+        // Get canonical URL for current content
+        $canonical = $this->get_current_canonical_url();
+        if (!$canonical) {
+            return;
+        }
+
+        // Build markdown URL
+        $md_url = rtrim($canonical, '/') . '.md';
+
+        // 303 See Other redirect with Vary header for caching
+        status_header(303);
+        header('Vary: Accept');
+        header('Location: ' . $md_url);
+        exit;
+    }
+
+    /**
+     * Get canonical URL for current content.
+     *
+     * Supports singular posts/pages, category/tag archives, author archives,
+     * and date archives.
+     *
+     * @return string|null The canonical URL or null if not determinable.
+     */
+    private function get_current_canonical_url(): ?string {
+        // Singular posts and pages
+        if (is_singular()) {
+            $post = get_queried_object();
+            return $post ? get_permalink($post) : null;
+        }
+
+        // Category, tag, and custom taxonomy archives
+        if (is_category() || is_tag() || is_tax()) {
+            $term = get_queried_object();
+            if (!$term) {
+                return null;
+            }
+            $link = get_term_link($term);
+            return is_wp_error($link) ? null : $link;
+        }
+
+        // Author archives
+        if (is_author()) {
+            return get_author_posts_url(get_queried_object_id());
+        }
+
+        // Date archives
+        if (is_date()) {
+            if (is_year()) {
+                return get_year_link(get_query_var('year'));
+            }
+            if (is_month()) {
+                return get_month_link(get_query_var('year'), get_query_var('monthnum'));
+            }
+            if (is_day()) {
+                return get_day_link(get_query_var('year'), get_query_var('monthnum'), get_query_var('day'));
+            }
+        }
+
+        return null;
     }
 
     /**
