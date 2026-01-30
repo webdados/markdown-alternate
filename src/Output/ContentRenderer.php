@@ -53,6 +53,9 @@ class ContentRenderer {
         $content = $post->post_content;
         $content = apply_filters('the_content', $content);
 
+        // Strip syntax highlighting markup from code blocks
+        $content = $this->strip_code_block_markup($content);
+
         // Convert HTML to markdown
         $body = $this->converter->convert($content);
 
@@ -160,5 +163,45 @@ class ContentRenderer {
      */
     private function decode_entities(string $value): string {
         return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    }
+
+    /**
+     * Strip syntax highlighting markup from code blocks.
+     *
+     * Plugins like syntax highlighters wrap code content in span elements
+     * with classes like "hljs-keyword". This strips all HTML from inside
+     * pre/code blocks while preserving the outer tags.
+     *
+     * @param string $content The HTML content.
+     * @return string The content with clean code blocks.
+     */
+    private function strip_code_block_markup(string $content): string {
+        // Match <pre> blocks (with optional attributes) and their contents
+        return preg_replace_callback(
+            '/<pre([^>]*)>(.*?)<\/pre>/is',
+            function ($matches) {
+                $pre_attrs = $matches[1];
+                $inner = $matches[2];
+
+                // Check if there's a <code> tag inside and extract language if present
+                $lang = '';
+                if (preg_match('/<code[^>]*class="[^"]*language-(\w+)[^"]*"[^>]*>/i', $inner, $lang_match)) {
+                    $lang = $lang_match[1];
+                } elseif (preg_match('/<code[^>]*class="[^"]*hljs[^"]*language-(\w+)[^"]*"[^>]*>/i', $inner, $lang_match)) {
+                    $lang = $lang_match[1];
+                }
+
+                // Strip all HTML tags from inside, keeping only text
+                $clean = strip_tags($inner);
+
+                // Decode entities that might have been in the code
+                $clean = html_entity_decode($clean, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+                // Rebuild with clean code tag (include language class if found)
+                $code_class = $lang ? ' class="language-' . $lang . '"' : '';
+                return '<pre><code' . $code_class . '>' . htmlspecialchars($clean, ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
+            },
+            $content
+        );
     }
 }
