@@ -16,18 +16,18 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Content Output
 
-- [ ] **CONT-01**: Markdown output includes post title as H1
-- [ ] **CONT-02**: Markdown output includes publication date
-- [ ] **CONT-03**: Markdown output includes author name
-- [ ] **CONT-04**: Markdown output includes featured image URL (if set)
-- [ ] **CONT-05**: Markdown output includes post body converted from HTML
-- [ ] **CONT-06**: Markdown output includes categories and tags at the end
-- [ ] **CONT-07**: Markdown output uses YAML frontmatter format for metadata
+- [x] **CONT-01**: Markdown output includes post title as H1
+- [x] **CONT-02**: Markdown output includes publication date
+- [x] **CONT-03**: Markdown output includes author name
+- [x] **CONT-04**: Markdown output includes featured image URL (if set)
+- [x] **CONT-05**: Markdown output includes post body converted from HTML
+- [x] **CONT-06**: Markdown output includes categories and tags at the end
+- [x] **CONT-07**: Markdown output uses YAML frontmatter format for metadata
 
 ### Technical
 
 - [x] **TECH-01**: Plugin flushes rewrite rules on activation and deactivation
-- [ ] **TECH-02**: Plugin processes shortcodes and blocks before HTML-to-markdown conversion
+- [x] **TECH-02**: Plugin processes shortcodes and blocks before HTML-to-markdown conversion
 - [ ] **TECH-03**: Plugin sends `Content-Type: text/markdown; charset=UTF-8` header
 - [ ] **TECH-04**: Plugin sends `Vary: Accept` header for cache compatibility
 - [ ] **TECH-05**: Plugin supports custom post types via filter hook
@@ -74,15 +74,15 @@ Which phases cover which requirements. Updated during roadmap creation.
 | URL-02 | Phase 3 | Pending |
 | URL-03 | Phase 3 | Pending |
 | URL-04 | Phase 4 | Pending |
-| CONT-01 | Phase 2 | Pending |
-| CONT-02 | Phase 2 | Pending |
-| CONT-03 | Phase 2 | Pending |
-| CONT-04 | Phase 2 | Pending |
-| CONT-05 | Phase 2 | Pending |
-| CONT-06 | Phase 2 | Pending |
-| CONT-07 | Phase 2 | Pending |
+| CONT-01 | Phase 2 | Complete |
+| CONT-02 | Phase 2 | Complete |
+| CONT-03 | Phase 2 | Complete |
+| CONT-04 | Phase 2 | Complete |
+| CONT-05 | Phase 2 | Complete |
+| CONT-06 | Phase 2 | Complete |
+| CONT-07 | Phase 2 | Complete |
 | TECH-01 | Phase 1 | Complete |
-| TECH-02 | Phase 2 | Pending |
+| TECH-02 | Phase 2 | Complete |
 | TECH-03 | Phase 3 | Pending |
 | TECH-04 | Phase 3 | Pending |
 | TECH-05 | Phase 4 | Pending |
@@ -97,4 +97,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-30*
-*Last updated: 2026-01-30 — Phase 1 complete*
+*Last updated: 2026-01-30 — Phase 2 complete*

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every post and page should be accessible as clean markdown through a predictable URL pattern (`/post-slug.md`)
-**Current focus:** Phase 2 - Content Conversion & Metadata (Complete)
+**Current focus:** Phase 3 - Content Negotiation & Discovery
 
 ## Current Position
 
 Phase: 2 of 4 complete (Content Conversion & Metadata)
 Plan: 2 of 2 complete in Phase 2
-Status: Phase 2 complete, ready for Phase 3
-Last activity: 2026-01-30 - Completed 02-02-PLAN.md
+Status: Phase 2 verified, ready for Phase 3
+Last activity: 2026-01-30 — Phase 2 executed and verified
 
-Progress: [██████████] 100% (4/4 defined plans)
+Progress: [█████░░░░░] 50% (2/4 phases)
 
 ## Performance Metrics
 
@@ -78,19 +78,18 @@ None.
 - Edge case handling (trailing slash, case sensitivity, post status, password protection)
 - WordPress.org readme.txt and GitHub README.md
 
-## Phase 2 Summary
+## Phase 2 Verification
 
-**Status:** Complete (2/2 plans)
-
-**Plan 02-01:** Complete - MarkdownConverter wrapper with league/html-to-markdown
-**Plan 02-02:** Complete - ContentRenderer for frontmatter/body/footer
+**Status:** Passed (8/8 must-haves verified, human approved)
+**Report:** .planning/phases/02-content-conversion-metadata/02-VERIFICATION.md
 
 **Key deliverables:**
-- HTML-to-markdown conversion via league/html-to-markdown library
-- YAML frontmatter with title, date, author, categories, tags, featured image
+- league/html-to-markdown 5.1.1 installed with secure wrapper
+- ContentRenderer with YAML frontmatter (title, date, author, featured_image, categories, tags)
 - H1 title heading after frontmatter
-- Converted markdown body (shortcodes/blocks rendered)
+- HTML-to-markdown conversion with security (strips script/style/iframe)
 - Footer with categories/tags in readable format
+- RewriteHandler wired to ContentRenderer
 
 ## Session Continuity
 

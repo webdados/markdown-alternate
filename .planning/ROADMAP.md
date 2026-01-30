@@ -11,7 +11,7 @@ This WordPress plugin delivers markdown versions of posts and pages through dedi
 - Decimal phases (e.g., 2.1): Urgent insertions (marked with INSERTED)
 
 - [x] **Phase 1: Core Infrastructure & URL Routing** - Plugin loads, routes `.md` URLs, serves basic markdown output
-- [ ] **Phase 2: Content Conversion & Metadata** - HTML-to-markdown conversion with complete post metadata
+- [x] **Phase 2: Content Conversion & Metadata** - HTML-to-markdown conversion with complete post metadata
 - [ ] **Phase 3: Content Negotiation & Discovery** - Accept header support and programmatic discovery via alternate links
 - [ ] **Phase 4: Extensibility & Fallbacks** - Query parameter fallback and custom post type support
 
@@ -45,8 +45,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01-PLAN.md — Install league/html-to-markdown and create MarkdownConverter wrapper
-- [ ] 02-02-PLAN.md — Create ContentRenderer for frontmatter/body and wire into RewriteHandler
+- [x] 02-01-PLAN.md — Install league/html-to-markdown and create MarkdownConverter wrapper
+- [x] 02-02-PLAN.md — Create ContentRenderer for frontmatter/body and wire into RewriteHandler
 
 ### Phase 3: Content Negotiation & Discovery
 **Goal**: Markdown is discoverable via HTTP headers and programmatically accessible via alternate links
@@ -83,10 +83,10 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Core Infrastructure & URL Routing | 2/2 | Complete | 2026-01-30 |
-| 2. Content Conversion & Metadata | 0/2 | Not started | - |
+| 2. Content Conversion & Metadata | 2/2 | Complete | 2026-01-30 |
 | 3. Content Negotiation & Discovery | 0/? | Not started | - |
 | 4. Extensibility & Fallbacks | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-01-30*
-*Last updated: 2026-01-30 — Phase 1 complete*
+*Last updated: 2026-01-30 — Phase 2 complete*
