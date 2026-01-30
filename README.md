@@ -65,17 +65,23 @@ Note: The value must be exactly `markdown` (lowercase, case-sensitive).
 ### Markdown Output Format
 
 ```markdown
+---
+title: "Post Title"
+date: 2026-01-30
+author: "Author Name"
+featured_image: "https://example.com/image.jpg"
+categories:
+  - name: "Category A"
+    url: "/category/category-a.md"
+  - name: "Category B"
+    url: "/category/category-b.md"
+tags:
+  - name: "tag1"
+    url: "/tag/tag1.md"
+---
 # Post Title
 
-**Date:** January 30, 2026
-**Author:** Author Name
-**Featured Image:** https://example.com/image.jpg
-
-[Post content converted to markdown]
-
----
-**Categories:** Category A, Category B
-**Tags:** tag1, tag2, tag3
+Post content converted to markdown...
 ```
 
 ## Requirements

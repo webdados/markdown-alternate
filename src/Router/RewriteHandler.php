@@ -16,6 +16,13 @@ use MarkdownAlternate\Output\ContentRenderer;
 class RewriteHandler {
 
     /**
+     * Cached post for markdown request (Nginx compatibility).
+     *
+     * @var WP_Post|null
+     */
+    private ?WP_Post $markdown_post = null;
+
+    /**
      * Register all hooks for URL routing.
      *
      * @return void
@@ -23,6 +30,10 @@ class RewriteHandler {
     public function register(): void {
         add_action('init', [$this, 'add_rewrite_rules']);
         add_filter('query_vars', [$this, 'add_query_vars']);
+        // Parse .md URLs directly from REQUEST_URI (Nginx compatibility)
+        add_action('parse_request', [$this, 'parse_markdown_url']);
+        // Prevent canonical redirect for .md URLs
+        add_filter('redirect_canonical', [$this, 'prevent_markdown_redirect'], 10, 2);
         // Order: format parameter -> Accept negotiation -> markdown request (URL wins first)
         add_action('template_redirect', [$this, 'handle_format_parameter'], 1);
         add_action('template_redirect', [$this, 'handle_accept_negotiation'], 1);
@@ -41,6 +52,69 @@ class RewriteHandler {
             'index.php?pagename=$matches[1]&markdown_request=1',
             'top'
         );
+    }
+
+    /**
+     * Prevent canonical redirect for .md URLs.
+     *
+     * WordPress tries to redirect to the canonical URL when the current URL
+     * doesn't match. We need to prevent this for .md requests.
+     *
+     * @param string $redirect_url  The redirect URL.
+     * @param string $requested_url The requested URL.
+     * @return string|false The redirect URL or false to prevent redirect.
+     */
+    public function prevent_markdown_redirect($redirect_url, $requested_url) {
+        if (get_query_var('markdown_request')) {
+            return false;
+        }
+        return $redirect_url;
+    }
+
+    /**
+     * Parse markdown URLs directly from REQUEST_URI.
+     *
+     * Provides Nginx compatibility by detecting .md URLs before WordPress
+     * rewrite rules are applied. Works on servers where add_rewrite_rule()
+     * doesn't function properly (Nginx, some managed hosts).
+     *
+     * @param \WP $wp WordPress environment instance.
+     * @return void
+     */
+    public function parse_markdown_url(\WP $wp): void {
+        $request_uri = $_SERVER['REQUEST_URI'] ?? '';
+
+        // Extract path without query string
+        $path = parse_url($request_uri, PHP_URL_PATH);
+
+        // Check if URL ends with .md (case-sensitive, lowercase only)
+        if (!preg_match('/^\/(.+)\.md$/', $path, $matches)) {
+            return;
+        }
+
+        $slug = $matches[1];
+
+        // Find post by slug - handles both posts and pages
+        global $wpdb;
+        $post_row = $wpdb->get_row($wpdb->prepare(
+            "SELECT ID, post_type FROM {$wpdb->posts}
+             WHERE post_name = %s
+             AND post_status = 'publish'
+             AND post_type IN (" . implode(',', array_fill(0, count($this->get_supported_post_types()), '%s')) . ")
+             LIMIT 1",
+            array_merge([$slug], $this->get_supported_post_types())
+        ));
+
+        if (!$post_row) {
+            return; // Let WordPress show its normal 404
+        }
+
+        // Get full post object and cache it for handle_markdown_request
+        $this->markdown_post = get_post($post_row->ID);
+
+        // Set query vars for WordPress
+        $wp->query_vars['p'] = $post_row->ID;
+        $wp->query_vars['markdown_request'] = '1';
     }
 
     /**
@@ -166,8 +240,8 @@ class RewriteHandler {
             exit;
         }
 
-        // Get the queried object
-        $post = get_queried_object();
+        // Get post - use cached post from parse_markdown_url (Nginx) or queried object (Apache)
+        $post = $this->markdown_post ?? get_queried_object();
 
         // Validate post exists and is a WP_Post
         if (!$post instanceof WP_Post) {
@@ -204,12 +278,15 @@ class RewriteHandler {
     /**
      * Set all required HTTP headers for markdown response.
      *
-     * Sets Content-Type, Vary, Link (canonical), and X-Content-Type-Options headers.
+     * Sets 200 status, Content-Type, Vary, Link (canonical), and X-Content-Type-Options headers.
      *
      * @param WP_Post $post The post being served.
      * @return void
      */
     private function set_response_headers(WP_Post $post): void {
+        // Override any 404 status WordPress may have set
+        status_header(200);
+
         // Required by TECH-03: text/markdown MIME type
         header('Content-Type: text/markdown; charset=UTF-8');
 

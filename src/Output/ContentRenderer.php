@@ -14,10 +14,9 @@ use MarkdownAlternate\Converter\MarkdownConverter;
  * Renders WordPress posts as markdown with YAML frontmatter.
  *
  * Handles complete content rendering including:
- * - YAML frontmatter with metadata
+ * - YAML frontmatter with metadata (title, date, author, categories, tags)
  * - H1 title heading
  * - HTML to markdown conversion
- * - Footer with categories and tags
  */
 class ContentRenderer {
 
@@ -57,17 +56,10 @@ class ContentRenderer {
         // Convert HTML to markdown
         $body = $this->converter->convert($content);
 
-        // Generate footer with categories/tags
-        $footer = $this->generate_footer($post);
-
         // Assemble output
         $output = $frontmatter . "\n";
         $output .= '# ' . $title . "\n\n";
         $output .= $body;
-
-        if ($footer !== '') {
-            $output .= "\n\n" . $footer;
-        }
 
         return $output;
     }
@@ -104,7 +96,8 @@ class ContentRenderer {
         if ($categories && !is_wp_error($categories)) {
             $lines[] = 'categories:';
             foreach ($categories as $category) {
-                $lines[] = '  - "' . $this->escape_yaml($category->name) . '"';
+                $lines[] = '  - name: "' . $this->escape_yaml($category->name) . '"';
+                $lines[] = '    url: "' . $this->get_term_markdown_url($category) . '"';
             }
         }
 
@@ -113,7 +106,8 @@ class ContentRenderer {
         if ($tags && !is_wp_error($tags)) {
             $lines[] = 'tags:';
             foreach ($tags as $tag) {
-                $lines[] = '  - "' . $this->escape_yaml($tag->name) . '"';
+                $lines[] = '  - name: "' . $this->escape_yaml($tag->name) . '"';
+                $lines[] = '    url: "' . $this->get_term_markdown_url($tag) . '"';
             }
         }
 
@@ -123,39 +117,19 @@ class ContentRenderer {
     }
 
     /**
-     * Generate footer section with categories and tags.
+     * Get the markdown URL for a term (category or tag).
      *
-     * @param WP_Post $post The post to generate footer for.
-     * @return string The footer section, or empty string if no categories/tags.
+     * @param \WP_Term $term The term object.
+     * @return string The markdown URL for the term.
      */
-    private function generate_footer(WP_Post $post): string {
-        $footer_parts = [];
-
-        // Categories
-        $categories = get_the_terms($post->ID, 'category');
-        if ($categories && !is_wp_error($categories)) {
-            $category_names = array_map(function ($cat) {
-                return $cat->name;
-            }, $categories);
-            $footer_parts[] = '**Categories:** ' . implode(', ', $category_names);
-        }
-
-        // Tags
-        $tags = get_the_terms($post->ID, 'post_tag');
-        if ($tags && !is_wp_error($tags)) {
-            $tag_names = array_map(function ($tag) {
-                return $tag->name;
-            }, $tags);
-            $footer_parts[] = '**Tags:** ' . implode(', ', $tag_names);
-        }
-
-        // Return empty string if no categories or tags
-        if (empty($footer_parts)) {
+    private function get_term_markdown_url(\WP_Term $term): string {
+        $url = get_term_link($term);
+        if (is_wp_error($url)) {
             return '';
         }
-
-        // Build footer with separator
-        return "---\n\n" . implode("\n", $footer_parts);
+        // Convert to relative URL and append .md
+        $path = wp_parse_url($url, PHP_URL_PATH);
+        return rtrim($path, '/') . '.md';
     }
 
     /**
