@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 
 ## Current Position
 
-Phase: 2 of 4 complete (Content Conversion & Metadata)
-Plan: 2 of 2 complete in Phase 2
-Status: Phase 2 verified, ready for Phase 3
-Last activity: 2026-01-30 — Phase 2 executed and verified
+Phase: 3 of 4 (Content Negotiation & Discovery)
+Plan: 1 of 2 complete in Phase 3
+Status: In progress
+Last activity: 2026-01-30 — Completed 03-01-PLAN.md
 
-Progress: [█████░░░░░] 50% (2/4 phases)
+Progress: [██████░░░░] 60% (3/5 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4
-- Average duration: 1.3 min
-- Total execution time: 0.09 hours
+- Total plans completed: 5
+- Average duration: 1.4 min
+- Total execution time: 0.12 hours
 
 **By Phase:**
 
@@ -29,9 +29,10 @@ Progress: [█████░░░░░] 50% (2/4 phases)
 |-------|-------|-------|----------|
 | 1 | 2/2 | 3 min | 1.5 min |
 | 2 | 2/2 | 2.3 min | 1.2 min |
+| 3 | 1/2 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (1 min), 01-02 (2 min), 02-01 (1 min), 02-02 (1.3 min)
+- Last 5 plans: 01-01 (1 min), 01-02 (2 min), 02-01 (1 min), 02-02 (1.3 min), 03-01 (2 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -58,6 +59,9 @@ Recent decisions affecting current work:
 - Categories/tags in both frontmatter (YAML) and footer (readable)
 - Featured image omitted when not set (clean YAML)
 - YAML values escaped for quotes and backslashes
+- Vary: Accept on both markdown responses and 303 redirects
+- Simple strpos() check for text/markdown - no quality factor parsing
+- URL wins over Accept header (markdown_request check first)
 
 ### Pending Todos
 
@@ -91,8 +95,17 @@ None.
 - Footer with categories/tags in readable format
 - RewriteHandler wired to ContentRenderer
 
+## Phase 3 Progress
+
+**Status:** In progress (1/2 plans complete)
+
+**03-01 Summary:**
+- HTTP response headers for markdown output (Vary, Link, X-Content-Type-Options)
+- Accept header content negotiation with 303 redirect to .md URLs
+- Canonical URL resolution for posts, pages, and archives
+
 ## Session Continuity
 
-Last session: 2026-01-30T09:13:00Z
-Stopped at: Completed 02-02-PLAN.md
+Last session: 2026-01-30
+Stopped at: Completed 03-01-PLAN.md
 Resume file: None
