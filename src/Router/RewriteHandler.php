@@ -109,9 +109,32 @@ class RewriteHandler {
         $renderer = new ContentRenderer();
         $markdown = $renderer->render($post);
 
-        header('Content-Type: text/markdown; charset=UTF-8');
+        $this->set_response_headers($post);
         echo $markdown;
         exit;
+    }
+
+    /**
+     * Set all required HTTP headers for markdown response.
+     *
+     * Sets Content-Type, Vary, Link (canonical), and X-Content-Type-Options headers.
+     *
+     * @param WP_Post $post The post being served.
+     * @return void
+     */
+    private function set_response_headers(WP_Post $post): void {
+        // Required by TECH-03: text/markdown MIME type
+        header('Content-Type: text/markdown; charset=UTF-8');
+
+        // Required by TECH-04: Vary header for cache compatibility
+        header('Vary: Accept');
+
+        // From CONTEXT.md: Link header with canonical HTML URL
+        $canonical_url = get_permalink($post);
+        header('Link: <' . $canonical_url . '>; rel="canonical"');
+
+        // From CONTEXT.md: Security header to prevent MIME sniffing
+        header('X-Content-Type-Options: nosniff');
     }
 
     /**
