@@ -10,8 +10,8 @@ Requirements for initial release. Each maps to roadmap phases.
 ### URL & Routing
 
 - [x] **URL-01**: Plugin serves markdown at `/post-slug.md` URLs via WordPress rewrite rules
-- [ ] **URL-02**: Plugin serves markdown when `Accept: text/markdown` header is present on original URL
-- [ ] **URL-03**: Plugin adds `<link rel="alternate" type="text/markdown">` to post/page `<head>`
+- [x] **URL-02**: Plugin serves markdown when `Accept: text/markdown` header is present on original URL
+- [x] **URL-03**: Plugin adds `<link rel="alternate" type="text/markdown">` to post/page `<head>`
 - [ ] **URL-04**: Plugin serves markdown via `?format=markdown` query parameter as fallback
 
 ### Content Output
@@ -28,8 +28,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **TECH-01**: Plugin flushes rewrite rules on activation and deactivation
 - [x] **TECH-02**: Plugin processes shortcodes and blocks before HTML-to-markdown conversion
-- [ ] **TECH-03**: Plugin sends `Content-Type: text/markdown; charset=UTF-8` header
-- [ ] **TECH-04**: Plugin sends `Vary: Accept` header for cache compatibility
+- [x] **TECH-03**: Plugin sends `Content-Type: text/markdown; charset=UTF-8` header
+- [x] **TECH-04**: Plugin sends `Vary: Accept` header for cache compatibility
 - [ ] **TECH-05**: Plugin supports custom post types via filter hook
 
 ### Infrastructure
@@ -71,8 +71,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | URL-01 | Phase 1 | Complete |
-| URL-02 | Phase 3 | Pending |
-| URL-03 | Phase 3 | Pending |
+| URL-02 | Phase 3 | Complete |
+| URL-03 | Phase 3 | Complete |
 | URL-04 | Phase 4 | Pending |
 | CONT-01 | Phase 2 | Complete |
 | CONT-02 | Phase 2 | Complete |
@@ -83,8 +83,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONT-07 | Phase 2 | Complete |
 | TECH-01 | Phase 1 | Complete |
 | TECH-02 | Phase 2 | Complete |
-| TECH-03 | Phase 3 | Pending |
-| TECH-04 | Phase 3 | Pending |
+| TECH-03 | Phase 3 | Complete |
+| TECH-04 | Phase 3 | Complete |
 | TECH-05 | Phase 4 | Pending |
 | INFR-01 | Phase 1 | Complete |
 | INFR-02 | Phase 1 | Complete |
@@ -97,4 +97,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-01-30*
-*Last updated: 2026-01-30 — Phase 2 complete*
+*Last updated: 2026-01-30 — Phase 3 complete*

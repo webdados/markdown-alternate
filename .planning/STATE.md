@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-30)
 
 **Core value:** Every post and page should be accessible as clean markdown through a predictable URL pattern (`/post-slug.md`)
-**Current focus:** Phase 3 - Content Negotiation & Discovery
+**Current focus:** Phase 4 - Extensibility & Fallbacks
 
 ## Current Position
 
-Phase: 3 of 4 (Content Negotiation & Discovery)
+Phase: 3 of 4 complete (Content Negotiation & Discovery)
 Plan: 2 of 2 complete in Phase 3
-Status: Phase 3 execution complete, ready for verification
-Last activity: 2026-01-30 — Completed 03-02-PLAN.md
+Status: Phase 3 verified, ready for Phase 4
+Last activity: 2026-01-30 — Phase 3 executed and verified
 
-Progress: [████████░░] 80% (4/5 plans complete)
+Progress: [███████░░░] 75% (3/4 phases)
 
 ## Performance Metrics
 
@@ -98,22 +98,19 @@ None.
 - Footer with categories/tags in readable format
 - RewriteHandler wired to ContentRenderer
 
-## Phase 3 Progress
+## Phase 3 Verification
 
-**Status:** Complete (2/2 plans executed, ready for verification)
+**Status:** Passed (4/4 must-haves verified)
+**Report:** .planning/phases/03-content-negotiation-discovery/03-VERIFICATION.md
 
-**03-01 Summary:**
-- HTTP response headers for markdown output (Vary, Link, X-Content-Type-Options)
-- Accept header content negotiation with 303 redirect to .md URLs
-- Canonical URL resolution for posts, pages, and archives
-
-**03-02 Summary:**
+**Key deliverables:**
+- Response headers: Content-Type, Vary: Accept, Link (canonical), X-Content-Type-Options
+- Accept header negotiation with 303 redirect to .md URLs
 - AlternateLinkHandler class for wp_head alternate link injection
-- `<link rel="alternate" type="text/markdown">` tags for posts/pages
-- Programmatic discovery of markdown versions via HTML head
+- Canonical URL resolution for posts, pages, and archives
 
 ## Session Continuity
 
-Last session: 2026-01-30
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-01-30T11:10:00Z
+Stopped at: Phase 3 complete, verified
 Resume file: None

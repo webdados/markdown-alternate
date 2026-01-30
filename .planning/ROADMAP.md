@@ -12,7 +12,7 @@ This WordPress plugin delivers markdown versions of posts and pages through dedi
 
 - [x] **Phase 1: Core Infrastructure & URL Routing** - Plugin loads, routes `.md` URLs, serves basic markdown output
 - [x] **Phase 2: Content Conversion & Metadata** - HTML-to-markdown conversion with complete post metadata
-- [ ] **Phase 3: Content Negotiation & Discovery** - Accept header support and programmatic discovery via alternate links
+- [x] **Phase 3: Content Negotiation & Discovery** - Accept header support and programmatic discovery via alternate links
 - [ ] **Phase 4: Extensibility & Fallbacks** - Query parameter fallback and custom post type support
 
 ## Phase Details
@@ -60,8 +60,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Response headers and Accept header content negotiation
-- [ ] 03-02-PLAN.md — Alternate link discovery via wp_head
+- [x] 03-01-PLAN.md — Response headers and Accept header content negotiation
+- [x] 03-02-PLAN.md — Alternate link discovery via wp_head
 
 ### Phase 4: Extensibility & Fallbacks
 **Goal**: Plugin works in edge cases (no Accept headers) and is extensible for custom post types
@@ -85,9 +85,9 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Core Infrastructure & URL Routing | 2/2 | Complete | 2026-01-30 |
 | 2. Content Conversion & Metadata | 2/2 | Complete | 2026-01-30 |
-| 3. Content Negotiation & Discovery | 0/2 | Not started | - |
+| 3. Content Negotiation & Discovery | 2/2 | Complete | 2026-01-30 |
 | 4. Extensibility & Fallbacks | 0/? | Not started | - |
 
 ---
 *Roadmap created: 2026-01-30*
-*Last updated: 2026-01-30 — Phase 2 complete*
+*Last updated: 2026-01-30 — Phase 3 complete*
