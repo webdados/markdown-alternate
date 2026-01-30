@@ -22,4 +22,9 @@ define('MARKDOWN_ALTERNATE_VERSION', '1.0.0');
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+// Register activation and deactivation hooks (must be in main plugin file)
+register_activation_hook(__FILE__, ['MarkdownAlternate\Plugin', 'activate']);
+register_deactivation_hook(__FILE__, ['MarkdownAlternate\Plugin', 'deactivate']);
+
+// Initialize the plugin
 \MarkdownAlternate\Plugin::instance();

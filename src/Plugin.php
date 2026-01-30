@@ -7,6 +7,8 @@
 
 namespace MarkdownAlternate;
 
+use MarkdownAlternate\Router\RewriteHandler;
+
 /**
  * Main plugin class implementing singleton pattern.
  */
@@ -18,6 +20,13 @@ class Plugin {
      * @var Plugin|null
      */
     private static $instance = null;
+
+    /**
+     * Router instance.
+     *
+     * @var RewriteHandler
+     */
+    private $router;
 
     /**
      * Get plugin instance.
@@ -35,28 +44,19 @@ class Plugin {
      * Private constructor to enforce singleton.
      */
     private function __construct() {
-        $this->register_hooks();
-    }
-
-    /**
-     * Register activation and deactivation hooks.
-     *
-     * @return void
-     */
-    private function register_hooks(): void {
-        register_activation_hook(MARKDOWN_ALTERNATE_FILE, [$this, 'activate']);
-        register_deactivation_hook(MARKDOWN_ALTERNATE_FILE, [$this, 'deactivate']);
+        $this->router = new RewriteHandler();
+        $this->router->register();
     }
 
     /**
      * Plugin activation callback.
      *
-     * Flushes rewrite rules to register .md URL endpoints.
+     * Registers rewrite rules and flushes to persist them.
      *
      * @return void
      */
-    public function activate(): void {
-        // Register rewrite rules before flushing (added in Plan 02)
+    public static function activate(): void {
+        RewriteHandler::register_rules();
         flush_rewrite_rules();
     }
 
@@ -67,18 +67,7 @@ class Plugin {
      *
      * @return void
      */
-    public function deactivate(): void {
+    public static function deactivate(): void {
         flush_rewrite_rules();
-    }
-
-    /**
-     * Initialize the router.
-     *
-     * Placeholder for URL routing initialization (added in Plan 02).
-     *
-     * @return void
-     */
-    public function init_router(): void {
-        // Router initialization will be added in Plan 02
     }
 }
