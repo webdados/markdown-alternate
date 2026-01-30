@@ -71,10 +71,11 @@ Plans:
   1. Visiting `/post-slug/?format=markdown` returns markdown (query parameter fallback)
   2. Developer can enable custom post types via documented filter hook
   3. Custom post type with filter enabled serves markdown at `.md` URL
-**Plans**: 1 plan
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Query parameter fallback and filterable custom post type support
+- [x] 04-01-PLAN.md — Query parameter fallback and filterable custom post type support
+- [ ] 04-02-PLAN.md — Documentation for query parameter and custom post type extensibility
 
 ## Progress
 
@@ -86,7 +87,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 | 1. Core Infrastructure & URL Routing | 2/2 | Complete | 2026-01-30 |
 | 2. Content Conversion & Metadata | 2/2 | Complete | 2026-01-30 |
 | 3. Content Negotiation & Discovery | 2/2 | Complete | 2026-01-30 |
-| 4. Extensibility & Fallbacks | 0/1 | Not started | - |
+| 4. Extensibility & Fallbacks | 1/2 | In progress | - |
 
 ---
 *Roadmap created: 2026-01-30*
