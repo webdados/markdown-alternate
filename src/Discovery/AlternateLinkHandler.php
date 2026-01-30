@@ -25,6 +25,29 @@ class AlternateLinkHandler {
     }
 
     /**
+     * Get supported post types for markdown output.
+     *
+     * Returns an array of post types that can be served as markdown.
+     * Developers can extend this via the 'markdown_alternate_supported_post_types' filter.
+     *
+     * @return array List of supported post type names.
+     */
+    private function get_supported_post_types(): array {
+        $default_types = [ 'post', 'page' ];
+        return apply_filters( 'markdown_alternate_supported_post_types', $default_types );
+    }
+
+    /**
+     * Check if a post type is supported for markdown output.
+     *
+     * @param string $post_type The post type to check.
+     * @return bool True if supported, false otherwise.
+     */
+    private function is_supported_post_type( string $post_type ): bool {
+        return in_array( $post_type, $this->get_supported_post_types(), true );
+    }
+
+    /**
      * Output alternate link tag for markdown version.
      *
      * Only outputs for published posts and pages (supported post types).
@@ -49,8 +72,8 @@ class AlternateLinkHandler {
             return;
         }
 
-        // Only for supported post types (post and page).
-        if ( ! in_array( $post->post_type, [ 'post', 'page' ], true ) ) {
+        // Only for supported post types.
+        if ( ! $this->is_supported_post_type( $post->post_type ) ) {
             return;
         }
 
