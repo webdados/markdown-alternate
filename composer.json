@@ -1,0 +1,18 @@
+{
+    "name": "joost/markdown-alternate",
+    "description": "WordPress plugin providing markdown versions of content via .md URLs",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=7.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "MarkdownAlternate\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    }
+}
