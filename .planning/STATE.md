@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-01-30)
 ## Current Position
 
 Phase: 3 of 4 (Content Negotiation & Discovery)
-Plan: 1 of 2 complete in Phase 3
-Status: In progress
-Last activity: 2026-01-30 — Completed 03-01-PLAN.md
+Plan: 2 of 2 complete in Phase 3
+Status: Phase 3 execution complete, ready for verification
+Last activity: 2026-01-30 — Completed 03-02-PLAN.md
 
-Progress: [██████░░░░] 60% (3/5 plans complete)
+Progress: [████████░░] 80% (4/5 plans complete)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 1.4 min
-- Total execution time: 0.12 hours
+- Total execution time: 0.14 hours
 
 **By Phase:**
 
@@ -29,10 +29,10 @@ Progress: [██████░░░░] 60% (3/5 plans complete)
 |-------|-------|-------|----------|
 | 1 | 2/2 | 3 min | 1.5 min |
 | 2 | 2/2 | 2.3 min | 1.2 min |
-| 3 | 1/2 | 2 min | 2 min |
+| 3 | 2/2 | 4 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (1 min), 01-02 (2 min), 02-01 (1 min), 02-02 (1.3 min), 03-01 (2 min)
+- Last 5 plans: 01-02 (2 min), 02-01 (1 min), 02-02 (1.3 min), 03-01 (2 min), 03-02 (2 min)
 - Trend: Stable
 
 *Updated after each plan completion*
@@ -62,6 +62,9 @@ Recent decisions affecting current work:
 - Vary: Accept on both markdown responses and 303 redirects
 - Simple strpos() check for text/markdown - no quality factor parsing
 - URL wins over Accept header (markdown_request check first)
+- Singular content only for alternate links (archives skipped for focused scope)
+- Priority 5 for wp_head ensures early injection
+- Post type whitelist ['post', 'page'] for alternate links
 
 ### Pending Todos
 
@@ -97,15 +100,20 @@ None.
 
 ## Phase 3 Progress
 
-**Status:** In progress (1/2 plans complete)
+**Status:** Complete (2/2 plans executed, ready for verification)
 
 **03-01 Summary:**
 - HTTP response headers for markdown output (Vary, Link, X-Content-Type-Options)
 - Accept header content negotiation with 303 redirect to .md URLs
 - Canonical URL resolution for posts, pages, and archives
 
+**03-02 Summary:**
+- AlternateLinkHandler class for wp_head alternate link injection
+- `<link rel="alternate" type="text/markdown">` tags for posts/pages
+- Programmatic discovery of markdown versions via HTML head
+
 ## Session Continuity
 
 Last session: 2026-01-30
-Stopped at: Completed 03-01-PLAN.md
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
