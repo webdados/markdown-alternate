@@ -49,9 +49,12 @@ class ContentRenderer {
         // Get title for H1 heading
         $title = get_the_title($post);
 
-        // Get content and apply WordPress filters (renders shortcodes and blocks)
+        // Process content with only essential filters (blocks and shortcodes)
+        // We avoid the full 'the_content' filter to prevent syntax highlighters
+        // and other prettifying plugins from modifying code blocks
         $content = $post->post_content;
-        $content = apply_filters('the_content', $content);
+        $content = do_blocks($content);
+        $content = do_shortcode($content);
 
         // Convert HTML to markdown
         $body = $this->converter->convert($content);
