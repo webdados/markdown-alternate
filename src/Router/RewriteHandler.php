@@ -23,7 +23,8 @@ class RewriteHandler {
     public function register(): void {
         add_action('init', [$this, 'add_rewrite_rules']);
         add_filter('query_vars', [$this, 'add_query_vars']);
-        // Accept negotiation registered first, runs first at same priority
+        // Order: format parameter -> Accept negotiation -> markdown request (URL wins first)
+        add_action('template_redirect', [$this, 'handle_format_parameter'], 1);
         add_action('template_redirect', [$this, 'handle_accept_negotiation'], 1);
         add_action('template_redirect', [$this, 'handle_markdown_request'], 1);
     }
@@ -50,7 +51,91 @@ class RewriteHandler {
      */
     public function add_query_vars(array $vars): array {
         $vars[] = 'markdown_request';
+        $vars[] = 'format';
         return $vars;
+    }
+
+    /**
+     * Get supported post types for markdown output.
+     *
+     * Returns an array of post types that can be served as markdown.
+     * Developers can extend this via the 'markdown_alternate_supported_post_types' filter.
+     *
+     * @return array List of supported post type names.
+     */
+    private function get_supported_post_types(): array {
+        $default_types = ['post', 'page'];
+        return apply_filters('markdown_alternate_supported_post_types', $default_types);
+    }
+
+    /**
+     * Check if a post type is supported for markdown output.
+     *
+     * @param string $post_type The post type to check.
+     * @return bool True if supported, false otherwise.
+     */
+    private function is_supported_post_type(string $post_type): bool {
+        return in_array($post_type, $this->get_supported_post_types(), true);
+    }
+
+    /**
+     * Handle format query parameter fallback.
+     *
+     * Serves markdown when ?format=markdown is present on singular content.
+     * URL (.md) takes precedence over query parameter.
+     *
+     * @return void
+     */
+    public function handle_format_parameter(): void {
+        // Skip if already a markdown request (URL wins over query parameter)
+        if (get_query_var('markdown_request')) {
+            return;
+        }
+
+        // Check for format=markdown query parameter (case-sensitive, strict equality)
+        $format = get_query_var('format');
+        if ($format !== 'markdown') {
+            return;
+        }
+
+        // Only for singular content
+        if (!is_singular()) {
+            return;
+        }
+
+        // Get the queried object
+        $post = get_queried_object();
+
+        // Validate post exists and is a WP_Post
+        if (!$post instanceof WP_Post) {
+            return;
+        }
+
+        // Check post type - only serve supported post types
+        if (!$this->is_supported_post_type($post->post_type)) {
+            return;
+        }
+
+        // Check post status - only serve published posts
+        if (get_post_status($post) !== 'publish') {
+            return;
+        }
+
+        // Check password protection
+        if (post_password_required($post)) {
+            status_header(403);
+            header('Content-Type: text/plain; charset=UTF-8');
+            echo 'This content is password protected.';
+            exit;
+        }
+
+        // Render and serve the markdown content
+        $renderer = new ContentRenderer();
+        $markdown = $renderer->render($post);
+
+        $this->set_response_headers($post);
+        echo $markdown;
+        exit;
     }
 
     /**
@@ -89,8 +174,8 @@ class RewriteHandler {
             return;
         }
 
-        // Check post type - only serve posts and pages
-        if (!in_array($post->post_type, ['post', 'page'], true)) {
+        // Check post type - only serve supported post types
+        if (!$this->is_supported_post_type($post->post_type)) {
             return;
         }
 
