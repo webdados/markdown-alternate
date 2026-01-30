@@ -57,10 +57,11 @@ Plans:
   2. HTML page head contains `<link rel="alternate" type="text/markdown" href="...">` tag
   3. Response includes `Content-Type: text/markdown; charset=UTF-8` header
   4. Response includes `Vary: Accept` header for cache compatibility
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Response headers and Accept header content negotiation
+- [ ] 03-02-PLAN.md — Alternate link discovery via wp_head
 
 ### Phase 4: Extensibility & Fallbacks
 **Goal**: Plugin works in edge cases (no Accept headers) and is extensible for custom post types
@@ -84,7 +85,7 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4
 |-------|----------------|--------|-----------|
 | 1. Core Infrastructure & URL Routing | 2/2 | Complete | 2026-01-30 |
 | 2. Content Conversion & Metadata | 2/2 | Complete | 2026-01-30 |
-| 3. Content Negotiation & Discovery | 0/? | Not started | - |
+| 3. Content Negotiation & Discovery | 0/2 | Not started | - |
 | 4. Extensibility & Fallbacks | 0/? | Not started | - |
 
 ---
