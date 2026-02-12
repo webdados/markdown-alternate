@@ -1,6 +1,6 @@
 # Markdown Alternate
 
-A WordPress plugin that provides markdown versions of posts and pages for LLMs and users who prefer clean, structured content over HTML.
+A WordPress plugin that provides markdown versions of posts and pages for LLMs and users who prefer clean, structured content over HTML. Read the [announcement blog post](https://joost.blog/markdown-alternate/) for the full story.
 
 ## Features
 
