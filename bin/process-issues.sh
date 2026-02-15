@@ -157,6 +157,82 @@ while [[ $# -gt 0 ]]; do
             OUTPUT_FORMAT="json"
             shift
             ;;
+        --launchd-install)
+            PLIST_LABEL="com.markdown-alternate.process-issues"
+            PLIST_PATH="$HOME/Library/LaunchAgents/${PLIST_LABEL}.plist"
+            SCRIPT_PATH="$SCRIPT_DIR/process-issues.sh"
+
+            # Unload existing if present
+            if launchctl list "$PLIST_LABEL" &>/dev/null; then
+                echo -e "${YELLOW}Unloading existing launchd job...${NC}"
+                launchctl unload "$PLIST_PATH" 2>/dev/null
+            fi
+
+            mkdir -p "$PROJECT_ROOT/logs"
+
+            cat > "$PLIST_PATH" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>${PLIST_LABEL}</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>${SCRIPT_PATH}</string>
+        <string>--loop</string>
+        <string>--optimize</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>${PROJECT_ROOT}</string>
+    <key>StartInterval</key>
+    <integer>3600</integer>
+    <key>StandardOutPath</key>
+    <string>${PROJECT_ROOT}/logs/launchd-stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>${PROJECT_ROOT}/logs/launchd-stderr.log</string>
+    <key>RunAtLoad</key>
+    <false/>
+</dict>
+</plist>
+PLIST
+
+            # Ensure .env exists with launchd-required vars
+            if [ ! -f "$PROJECT_ROOT/.env" ]; then
+                HOMEBREW_BIN=$(command -v brew 2>/dev/null && brew --prefix 2>/dev/null || echo "/opt/homebrew")
+                cat > "$PROJECT_ROOT/.env" <<ENVFILE
+HOMEBREW_PATH=${HOMEBREW_BIN}/bin
+USER_HOME=${HOME}
+ENVFILE
+                echo -e "${GREEN}Created .env with HOMEBREW_PATH and USER_HOME${NC}"
+            fi
+
+            launchctl load "$PLIST_PATH"
+            echo -e "${GREEN}Installed and loaded launchd job:${NC}"
+            echo "  Plist: $PLIST_PATH"
+            echo "  Runs:  every hour (--loop --optimize)"
+            echo "  Logs:  $PROJECT_ROOT/logs/"
+            echo ""
+            echo "Commands:"
+            echo "  launchctl start $PLIST_LABEL    # Run now"
+            echo "  launchctl unload $PLIST_PATH    # Disable"
+            echo "  launchctl load $PLIST_PATH      # Re-enable"
+            exit 0
+            ;;
+        --launchd-uninstall)
+            PLIST_LABEL="com.markdown-alternate.process-issues"
+            PLIST_PATH="$HOME/Library/LaunchAgents/${PLIST_LABEL}.plist"
+
+            if [ ! -f "$PLIST_PATH" ]; then
+                echo -e "${RED}No launchd job found at $PLIST_PATH${NC}" >&2
+                exit 1
+            fi
+
+            launchctl unload "$PLIST_PATH" 2>/dev/null
+            rm -f "$PLIST_PATH"
+            echo -e "${GREEN}Uninstalled launchd job and removed plist.${NC}"
+            exit 0
+            ;;
         --help|-h)
             echo "markdown-alternate GitHub Issue Processing Script"
             echo ""
@@ -166,12 +242,14 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: bin/process-issues.sh [OPTIONS]"
             echo ""
             echo "Options:"
-            echo "  --run              Process one issue with Claude Code"
-            echo "  --loop             Process all open issues one by one (implies --run)"
-            echo "  --optimize         When no issues remain, review PHP files for optimization PRs"
-            echo "  --issue=N          Target a specific issue by number"
-            echo "  --json             Output raw JSON from GitHub"
-            echo "  --help, -h         Show this help message"
+            echo "  --run                Process one issue with Claude Code"
+            echo "  --loop               Process all open issues one by one (implies --run)"
+            echo "  --optimize           When no issues remain, review PHP files for optimization PRs"
+            echo "  --issue=N            Target a specific issue by number"
+            echo "  --json               Output raw JSON from GitHub"
+            echo "  --launchd-install    Install as macOS launchd job (runs every 30 min)"
+            echo "  --launchd-uninstall  Remove the launchd job"
+            echo "  --help, -h           Show this help message"
             echo ""
             echo "Examples:"
             echo "  bin/process-issues.sh                       # Show oldest open issue (dry run)"
@@ -179,6 +257,7 @@ while [[ $# -gt 0 ]]; do
             echo "  bin/process-issues.sh --run --issue=5       # Process issue #5"
             echo "  bin/process-issues.sh --loop --optimize     # Process all, review PRs, then optimize"
             echo "  bin/process-issues.sh --json                # Show raw JSON"
+            echo "  bin/process-issues.sh --launchd-install     # Install as scheduled job"
             exit 0
             ;;
         *)
