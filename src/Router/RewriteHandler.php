@@ -99,14 +99,21 @@ class RewriteHandler {
             return;
         }
 
-        // Handle /index.md as the front page
+        // Handle /index.md - could be front page or a page with slug "index"
         if ($matches[1] === 'index') {
-            $page_on_front = get_option('page_on_front');
-            if ($page_on_front) {
-                $post_id = (int) $page_on_front;
-            } else {
-                // No static front page set - let WordPress show its normal behavior
-                return;
+            // First try to resolve as a regular page with slug "index"
+            $clean_url = home_url('/index');
+            $post_id   = url_to_postid($clean_url);
+
+            // If no page with slug "index" exists, treat as front page
+            if (!$post_id) {
+                $page_on_front = get_option('page_on_front');
+                if ($page_on_front) {
+                    $post_id = (int) $page_on_front;
+                } else {
+                    // No static front page set - let WordPress show its normal behavior
+                    return;
+                }
             }
         } else {
             // Strip .md to get the original URL path, let WordPress resolve it
@@ -354,7 +361,7 @@ class RewriteHandler {
         }
 
         // Build markdown URL
-        $md_url = $this->convert_to_markdown_url($canonical);
+        $md_url = UrlConverter::convert_to_markdown_url($canonical);
 
         // 303 See Other redirect with Vary header for caching
         status_header(303);
@@ -363,27 +370,6 @@ class RewriteHandler {
         exit;
     }
 
-    /**
-     * Convert a permalink to a markdown URL.
-     *
-     * Handles special case for front page to avoid .com.md URLs.
-     *
-     * @param string $permalink The permalink to convert.
-     * @return string The markdown URL.
-     */
-    private function convert_to_markdown_url(string $permalink): string {
-        // Normalize both URLs by removing trailing slashes for comparison
-        $normalized_permalink = rtrim($permalink, '/');
-        $normalized_home      = rtrim(home_url('/'), '/');
-
-        // If this is the front page, use /index.md
-        if ($normalized_permalink === $normalized_home) {
-            return home_url('/index.md');
-        }
-
-        // Otherwise, append .md to the permalink
-        return $normalized_permalink . '.md';
-    }
 
     /**
      * Get canonical URL for current content.
