@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Markdown Alternate
- * Plugin URI: https://github.com/joostdevalk/markdown-alternate
+ * Plugin URI: https://github.com/ProgressPlanner/markdown-alternate
  * Description: Provides markdown versions of posts and pages via .md URLs
  * Version: 1.0.0
  * Requires at least: 6.0
