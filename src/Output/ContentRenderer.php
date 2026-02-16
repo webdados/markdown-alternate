@@ -44,11 +44,11 @@ class ContentRenderer {
      */
     public function render(WP_Post $post): string {
         $transient_key = 'md_alt_cache_' . $post->ID;
-        $cached_data   = get_transient($transient_key);
+        $cached_data   = get_transient( $transient_key );
 
-        // Check if cache exists and post hasn't been modified since
-        if (is_array($cached_data) && isset($cached_data['markdown'], $cached_data['modified'])) {
-            if ($cached_data['modified'] === $post->post_modified) {
+        // Check if cache exists and post hasn't been modified since.
+        if ( is_array( $cached_data ) && isset( $cached_data['markdown'], $cached_data['modified'] ) ) {
+            if ( $post->post_modified === $cached_data['modified'] ) {
                 return $cached_data['markdown'];
             }
         }
@@ -74,12 +74,20 @@ class ContentRenderer {
         $output .= '# ' . $this->decode_entities($title) . "\n\n";
         $output .= $body;
 
-        // Cache the result (default 24 hours)
-        $expiration = apply_filters('markdown_alternate_cache_expiration', DAY_IN_SECONDS);
-        set_transient($transient_key, [
+        // Cache the result (default 24 hours).
+
+        /**
+         * Filters the cache expiration time for rendered markdown output.
+         *
+         * @since 1.1.0
+         *
+         * @param int $expiration Cache expiration time in seconds. Default DAY_IN_SECONDS.
+         */
+        $expiration = apply_filters( 'markdown_alternate_cache_expiration', DAY_IN_SECONDS );
+        set_transient( $transient_key, array(
             'markdown' => $output,
             'modified' => $post->post_modified,
-        ], $expiration);
+        ), $expiration );
 
         return $output;
     }
