@@ -7,6 +7,8 @@
 
 namespace MarkdownAlternate\Discovery;
 
+use MarkdownAlternate\Router\UrlConverter;
+
 /**
  * Handles alternate link tag injection in HTML page head.
  *
@@ -47,18 +49,6 @@ class AlternateLinkHandler {
         return in_array( $post_type, $this->get_supported_post_types(), true );
     }
 
-    /**
-     * Convert a post's permalink to a markdown URL.
-     *
-     * Delegates to RewriteHandler for consistent URL conversion.
-     *
-     * @param \WP_Post $post The post object.
-     * @return string The markdown URL.
-     */
-    private function get_markdown_url( \WP_Post $post ): string {
-        $permalink = get_permalink( $post );
-        return \MarkdownAlternate\Router\RewriteHandler::permalink_to_markdown_url_static( $permalink );
-    }
 
     /**
      * Output alternate link tag for markdown version.
@@ -91,7 +81,7 @@ class AlternateLinkHandler {
         }
 
         // Build the .md URL.
-        $md_url = $this->get_markdown_url( $post );
+        $md_url = UrlConverter::convert_to_markdown_url( get_permalink( $post ) );
 
         // Output the alternate link tag.
         printf(
