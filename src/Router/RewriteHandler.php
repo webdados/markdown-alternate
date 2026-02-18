@@ -118,10 +118,9 @@ class RewriteHandler {
                 }
             }
         } else {
-            // Try to resolve the post by trying different permalink structures
-            // 1. Try replacing .md with common extensions (.html, .htm, .php, .aspx, .asp)
-            // 2. Try without any extension (original behavior)
-            $extensions_to_try = ['.html', '.htm', '.php', '.aspx', '.asp', ''];
+            // Try to resolve the post by replacing .md with known permalink extensions,
+            // then fall back to no extension (original behavior).
+            $extensions_to_try = array_merge( UrlConverter::PERMALINK_EXTENSIONS, [ '' ] );
             $post_id = 0;
 
             foreach ($extensions_to_try as $ext) {
