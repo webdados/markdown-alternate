@@ -99,8 +99,10 @@ class RewriteHandler {
             return;
         }
 
+        $path_without_md = $matches[1];
+
         // Handle /index.md - could be front page or a page with slug "index"
-        if ($matches[1] === 'index') {
+        if ($path_without_md === 'index') {
             // First try to resolve as a regular page with slug "index"
             $clean_url = home_url('/index');
             $post_id   = url_to_postid($clean_url);
@@ -116,9 +118,19 @@ class RewriteHandler {
                 }
             }
         } else {
-            // Strip .md to get the original URL path, let WordPress resolve it
-            $clean_url = home_url('/' . $matches[1]);
-            $post_id   = url_to_postid($clean_url);
+            // Try to resolve the post by replacing .md with known permalink extensions,
+            // then fall back to no extension (original behavior).
+            $extensions_to_try = array_merge( UrlConverter::PERMALINK_EXTENSIONS, [ '' ] );
+            $post_id = 0;
+
+            foreach ($extensions_to_try as $ext) {
+                $clean_url = home_url('/' . $path_without_md . $ext);
+                $post_id   = url_to_postid($clean_url);
+
+                if ($post_id) {
+                    break;
+                }
+            }
 
             if (!$post_id) {
                 return; // Let WordPress show its normal 404

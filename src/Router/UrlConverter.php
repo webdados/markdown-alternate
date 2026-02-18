@@ -13,6 +13,20 @@ namespace MarkdownAlternate\Router;
 class UrlConverter {
 
 	/**
+	 * File extensions used in permalink structures that should be replaced with .md.
+	 *
+	 * @var string[]
+	 */
+	public const PERMALINK_EXTENSIONS = [ '.html', '.htm', '.php', '.aspx', '.asp' ];
+
+	/**
+	 * Regex pattern matching any of the supported permalink extensions.
+	 *
+	 * @var string
+	 */
+	private const EXTENSION_PATTERN = '/\.(html?|php|aspx?)$/i';
+
+	/**
 	 * Convert a permalink to a markdown URL.
 	 *
 	 * Handles special case for front page to avoid .com.md URLs.
@@ -30,7 +44,11 @@ class UrlConverter {
 			return home_url( '/index.md' );
 		}
 
-		// Otherwise, append .md to the permalink
+		// Replace file extension with .md, or append .md if no extension
+		if ( preg_match( self::EXTENSION_PATTERN, $normalized_permalink ) ) {
+			return preg_replace( self::EXTENSION_PATTERN, '.md', $normalized_permalink );
+		}
+
 		return $normalized_permalink . '.md';
 	}
 }
