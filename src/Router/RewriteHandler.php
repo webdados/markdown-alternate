@@ -46,6 +46,13 @@ class RewriteHandler {
      * @return void
      */
     public function add_rewrite_rules(): void {
+        // Specific rule for index.md (front page)
+        add_rewrite_rule(
+            '^index\.md$',
+            'index.php?pagename=index&markdown_request=1',
+            'top'
+        );
+
         // Non-greedy pattern to capture nested page slugs correctly
         add_rewrite_rule(
             '(.+?)\.md$',
@@ -92,29 +99,62 @@ class RewriteHandler {
             return;
         }
 
-        $slug = $matches[1];
+        $path_without_md = $matches[1];
 
-        // Find post by slug - handles both posts and pages
-        global $wpdb;
-        $post_row = $wpdb->get_row($wpdb->prepare(
-            "SELECT ID, post_type FROM {$wpdb->posts}
-             WHERE post_name = %s
-             AND post_status = 'publish'
-             AND post_type IN (" . implode(',', array_fill(0, count($this->get_supported_post_types()), '%s')) . ")
-             LIMIT 1",
-            array_merge([$slug], $this->get_supported_post_types())
-        ));
+        // Handle /index.md - could be front page or a page with slug "index"
+        if ($path_without_md === 'index') {
+            // First try to resolve as a regular page with slug "index"
+            $clean_url = home_url('/index');
+            $post_id   = url_to_postid($clean_url);
 
-        if (!$post_row) {
-            return; // Let WordPress show its normal 404
+            // If no page with slug "index" exists, treat as front page
+            if (!$post_id) {
+                $page_on_front = get_option('page_on_front');
+                if ($page_on_front) {
+                    $post_id = (int) $page_on_front;
+                } else {
+                    // No static front page set - let WordPress show its normal behavior
+                    return;
+                }
+            }
+        } else {
+            // Try to resolve the post by replacing .md with known permalink extensions,
+            // then fall back to no extension (original behavior).
+            $extensions_to_try = array_merge( UrlConverter::PERMALINK_EXTENSIONS, [ '' ] );
+            $post_id = 0;
+
+            foreach ($extensions_to_try as $ext) {
+                $clean_url = home_url('/' . $path_without_md . $ext);
+                $post_id   = url_to_postid($clean_url);
+
+                if ($post_id) {
+                    break;
+                }
+            }
+
+            if (!$post_id) {
+                return; // Let WordPress show its normal 404
+            }
         }
 
-        // Get full post object and cache it for handle_markdown_request
-        $this->markdown_post = get_post($post_row->ID);
+        $post = get_post($post_id);
+
+        if (!$post || $post->post_status !== 'publish') {
+            return;
+        }
+
+        if (!$this->is_supported_post_type($post->post_type)) {
+            return;
+        }
+
+        // Cache post for handle_markdown_request
+        $this->markdown_post = $post;
 
         // Set query vars for WordPress
-        $wp->query_vars['p'] = $post_row->ID;
+        $wp->query_vars['p']                = $post->ID;
         $wp->query_vars['markdown_request'] = '1';
+        // Remove incorrect pagename that the rewrite rule may have set
+        unset($wp->query_vars['pagename']);
     }
 
     /**
@@ -333,7 +373,7 @@ class RewriteHandler {
         }
 
         // Build markdown URL
-        $md_url = rtrim($canonical, '/') . '.md';
+        $md_url = UrlConverter::convert_to_markdown_url($canonical);
 
         // 303 See Other redirect with Vary header for caching
         status_header(303);
@@ -341,6 +381,7 @@ class RewriteHandler {
         header('Location: ' . $md_url);
         exit;
     }
+
 
     /**
      * Get canonical URL for current content.
