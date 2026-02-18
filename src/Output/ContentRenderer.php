@@ -99,6 +99,7 @@ class ContentRenderer {
             $content_lines['featured_image']['content'] = $this->escape_yaml($featured_image);
         }
 
+        // Taxonomies (categories and tags by default, but filterable)
         $taxonommies = array(
             'category' => 'categories',
             'post_tag' => 'tags',
@@ -124,6 +125,7 @@ class ContentRenderer {
 
         // Add content lines to lines
         foreach ($content_lines as $key => $value) {
+            // Single content line (like title, date, author, featured_image)
             if (isset($value['content'])) {
                 switch( $key ) {
                     case 'date':
@@ -135,6 +137,7 @@ class ContentRenderer {
 
                 }
             }
+            // Multiple items (like categories and tags)
             if (isset($value['items']) && is_array($value['items'])) {
                 $lines[] = $key . ':';
                 $i = 0;
