@@ -122,6 +122,7 @@ class ContentRenderer {
         foreach ($taxonomies as $taxonomy => $key) {
             $terms = get_the_terms($post->ID, $taxonomy);
             if ($terms && !is_wp_error($terms)) {
+                $content_lines[$key]['type'] = 'array';
                 $content_lines[$key]['items'] = array();
                 foreach ($terms as $term) {
                     $content_lines[$key]['items'][] = array(
@@ -138,24 +139,27 @@ class ContentRenderer {
             }
         }
         
-        // Allow 3rd party to modify content lines before they are added to the frontmatter
+        // Allow 3rd party to modify content lines before they are added to the raw lines
         $content_lines = apply_filters('markdown_alternate_frontmatter_content_lines', $content_lines, $post);
 
         // Add content lines to lines
         foreach ($content_lines as $key => $value) {
-            // Single content line (like title, date, author, featured_image)
-            if (isset($value['content'])) {
-                $lines[] = $key . ': ' . $this->format_yaml_value($value['content'], $value['type']);
+            if (!isset( $value['type']) || (empty($value['type']))) {
+                // Skip empty type values
+                continue;
             }
-            // Multiple items (like categories and tags)
-            if (isset($value['items']) && is_array($value['items'])) {
+            if ($value['type'] === 'array' && isset($value['items']) && is_array($value['items'])) {
+                // Multiple items (like categories and tags)
                 $lines[] = $key . ':';
-                $i = 0;
                 foreach ($value['items'] as $item) {
+                    //$item_lines = array();
                     $i = 0;
-                    foreach($item as $item_key => $item_value) {
-                        // We should be also be looking into the item content type to add quotes only when needed, but for now we will just escape all item values and wrap them in quotes to be safe
-                        $item_value = $this->format_yaml_value( $this->escape_yaml($item_value['content']), $item_value['type'] );
+                    foreach ($item as $item_key => $item_value) {
+                        if (!isset( $item_value['type']) || (empty($item_value['type'])) || (!isset( $item_value['content']))) {
+                            // Skip empty type values or if content is not set
+                            continue;
+                        }
+                        $item_value = $this->format_yaml_value($this->escape_yaml($item_value['content']), $item_value['type']);
                         if ( $i === 0 ) {
                             $lines[] = '  - ' . $item_key . ': ' . $item_value;
                         } else {
@@ -164,10 +168,13 @@ class ContentRenderer {
                         $i++;
                     }
                 }
+            } elseif (isset($value['content'])) {
+                // Single content line (like title, date, author, featured_image)
+                $lines[] = $key . ': ' . $this->format_yaml_value($value['content'], $value['type']);
             }
         }
 
-        // Allow 3rd party to add lines
+        // Allow 3rd party to add lines before they're added to the frontmatter block (e.g. for custom fields or taxonomies that require a different structure)
         $lines = apply_filters('markdown_alternate_frontmatter_lines', $lines, $post);
         
         // YAML ender
