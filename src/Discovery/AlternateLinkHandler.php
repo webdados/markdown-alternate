@@ -8,6 +8,7 @@
 namespace MarkdownAlternate\Discovery;
 
 use MarkdownAlternate\PostTypeSupport;
+use MarkdownAlternate\Router\UrlConverter;
 
 /**
  * Handles alternate link tag injection in HTML page head.
@@ -57,7 +58,7 @@ class AlternateLinkHandler {
         }
 
         // Build the .md URL.
-        $md_url = rtrim( get_permalink( $post ), '/' ) . '.md';
+        $md_url = UrlConverter::convert_to_markdown_url( get_permalink( $post ) );
 
         // Output the alternate link tag.
         printf(

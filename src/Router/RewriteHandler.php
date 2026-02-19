@@ -54,6 +54,13 @@ class RewriteHandler {
      * @return void
      */
     public function add_rewrite_rules(): void {
+        // Specific rule for index.md (front page)
+        add_rewrite_rule(
+            '^index\.md$',
+            'index.php?pagename=index&markdown_request=1',
+            'top'
+        );
+
         // Non-greedy pattern to capture nested page slugs correctly
         add_rewrite_rule(
             '(.+?)\.md$',
@@ -100,12 +107,42 @@ class RewriteHandler {
             return;
         }
 
-        // Strip .md to get the original URL path, let WordPress resolve it
-        $clean_url = home_url('/' . $matches[1]);
-        $post_id   = url_to_postid($clean_url);
+        $path_without_md = $matches[1];
 
-        if (!$post_id) {
-            return; // Let WordPress show its normal 404
+        // Handle /index.md - could be front page or a page with slug "index"
+        if ($path_without_md === 'index') {
+            // First try to resolve as a regular page with slug "index"
+            $clean_url = home_url('/index');
+            $post_id   = url_to_postid($clean_url);
+
+            // If no page with slug "index" exists, treat as front page
+            if (!$post_id) {
+                $page_on_front = get_option('page_on_front');
+                if ($page_on_front) {
+                    $post_id = (int) $page_on_front;
+                } else {
+                    // No static front page set - let WordPress show its normal behavior
+                    return;
+                }
+            }
+        } else {
+            // Try to resolve the post by replacing .md with known permalink extensions,
+            // then fall back to no extension (original behavior).
+            $extensions_to_try = array_merge( UrlConverter::PERMALINK_EXTENSIONS, [ '' ] );
+            $post_id = 0;
+
+            foreach ($extensions_to_try as $ext) {
+                $clean_url = home_url('/' . $path_without_md . $ext);
+                $post_id   = url_to_postid($clean_url);
+
+                if ($post_id) {
+                    break;
+                }
+            }
+
+            if (!$post_id) {
+                return; // Let WordPress show its normal 404
+            }
         }
 
         $post = get_post($post_id);
@@ -323,7 +360,7 @@ class RewriteHandler {
         }
 
         // Build markdown URL
-        $md_url = rtrim($canonical, '/') . '.md';
+        $md_url = UrlConverter::convert_to_markdown_url($canonical);
 
         // 303 See Other redirect with Vary header for caching
         status_header(303);
@@ -331,6 +368,7 @@ class RewriteHandler {
         header('Location: ' . $md_url);
         exit;
     }
+
 
     /**
      * Get canonical URL for current content.
