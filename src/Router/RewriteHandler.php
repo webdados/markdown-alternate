@@ -389,7 +389,6 @@ class RewriteHandler {
         }
 
         // 303 See Other redirect with Vary header for caching
-        status_header(303);
         header('Vary: Accept');
         wp_safe_redirect($md_url, 303);
         exit;
