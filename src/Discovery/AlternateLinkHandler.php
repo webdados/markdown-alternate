@@ -36,31 +36,25 @@ class AlternateLinkHandler {
      * @return void
      */
     public function output_alternate_link(): void {
-        // Only for singular content (posts and pages).
         if ( ! is_singular() ) {
             return;
         }
 
-        // Get the current post.
         $post = get_queried_object();
         if ( ! $post instanceof \WP_Post ) {
             return;
         }
 
-        // Only for published content.
         if ( get_post_status( $post ) !== 'publish' ) {
             return;
         }
 
-        // Only for supported post types.
         if ( ! PostTypeSupport::is_supported( $post->post_type ) ) {
             return;
         }
 
-        // Build the .md URL.
         $md_url = UrlConverter::convert_to_markdown_url( get_permalink( $post ) );
 
-        // Output the alternate link tag.
         printf(
             '<link rel="alternate" type="text/markdown" href="%s" />' . "\n",
             esc_url( $md_url )

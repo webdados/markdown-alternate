@@ -98,8 +98,6 @@ class RewriteHandler {
      */
     public function parse_markdown_url(\WP $wp): void {
         $request_uri = $_SERVER['REQUEST_URI'] ?? '';
-
-        // Extract path without query string
         $path = parse_url($request_uri, PHP_URL_PATH);
 
         // Check if URL ends with .md (case-sensitive, lowercase only)
@@ -158,7 +156,6 @@ class RewriteHandler {
         // Cache post for handle_markdown_request
         $this->markdown_post = $post;
 
-        // Set query vars for WordPress
         $wp->query_vars['p']                = $post->ID;
         $wp->query_vars['markdown_request'] = '1';
         // Remove incorrect pagename that the rewrite rule may have set
@@ -238,6 +235,7 @@ class RewriteHandler {
      * @return void
      */
     public function handle_format_parameter(): void {
+        // Skip if already a markdown request (URL takes precedence over query parameter).
         if (get_query_var('markdown_request')) {
             return;
         }
@@ -277,6 +275,7 @@ class RewriteHandler {
 
         $request_uri = $_SERVER['REQUEST_URI'] ?? '';
 
+        // Enforce lowercase .md extension — reject wrong case and let WordPress 404.
         if (
             !preg_match('/\.md$/', $request_uri) &&
             preg_match('/\.md$/i', $request_uri)
@@ -284,11 +283,13 @@ class RewriteHandler {
             return;
         }
 
+        // Redirect trailing slash: /slug.md/ → /slug.md
         if (str_ends_with($request_uri, '.md/')) {
             wp_redirect(rtrim($request_uri, '/'), 301);
             exit;
         }
 
+        // Use cached post from parse_markdown_url (Nginx) or queried object (Apache).
         $post = $this->markdown_post ?? get_queried_object();
 
         if (!$post instanceof WP_Post) {
@@ -313,23 +314,21 @@ class RewriteHandler {
      * @return void
      */
     private function set_response_headers(WP_Post $post, string $markdown): void {
-        // Override any 404 status WordPress may have set
+        // Override any 404 status WordPress may have set.
         status_header(200);
 
-        // Required by TECH-03: text/markdown MIME type
         header('Content-Type: text/markdown; charset=UTF-8');
 
-        // Required by TECH-04: Vary header for cache compatibility
+        // Ensures caches distinguish HTML and markdown responses for the same URL.
         header('Vary: Accept');
 
-        // From CONTEXT.md: Link header with canonical HTML URL
         $canonical_url = get_permalink($post);
         header('Link: <' . $canonical_url . '>; rel="canonical"');
 
-        // From CONTEXT.md: Security header to prevent MIME sniffing
+        // Prevent MIME sniffing.
         header('X-Content-Type-Options: nosniff');
 
-        // Estimated token count for the markdown content (~4 chars per token)
+        // Estimated token count (~4 chars per token).
         header('X-Markdown-Tokens: ' . (int) (strlen($markdown) / 4));
     }
 
@@ -342,27 +341,24 @@ class RewriteHandler {
      * @return void
      */
     public function handle_accept_negotiation(): void {
-        // Skip if already a markdown request (URL wins over Accept header)
+        // Skip if already a markdown request (URL wins over Accept header).
         if (get_query_var('markdown_request')) {
             return;
         }
 
-        // Check Accept header for text/markdown
         $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
         if (strpos($accept, 'text/markdown') === false) {
             return;
         }
 
-        // Get canonical URL for current content
         $canonical = $this->get_current_canonical_url();
         if (!$canonical) {
             return;
         }
 
-        // Build markdown URL
         $md_url = UrlConverter::convert_to_markdown_url($canonical);
 
-        // 303 See Other redirect with Vary header for caching
+        // 303 See Other: redirect to markdown URL with Vary for cache correctness.
         status_header(303);
         header('Vary: Accept');
         header('Location: ' . $md_url);
