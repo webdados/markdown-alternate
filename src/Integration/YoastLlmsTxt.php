@@ -25,7 +25,7 @@ class YoastLlmsTxt {
      *
      * @var bool
      */
-    private static bool $generating = false;
+    private bool $generating = false;
 
     /**
      * Register hooks to wrap Yoast's llms.txt generation.
@@ -55,10 +55,10 @@ class YoastLlmsTxt {
      * @return void
      */
     public function start(): void {
-        if ( self::$generating ) {
+        if ( $this->generating ) {
             return;
         }
-        self::$generating = true;
+        $this->generating = true;
 
         // from_meta() path: $meta->canonical goes through this filter.
         add_filter( 'wpseo_canonical', [ $this, 'rewrite_canonical' ], 10, 2 );
@@ -75,10 +75,10 @@ class YoastLlmsTxt {
      * @return void
      */
     public function stop(): void {
-        if ( ! self::$generating ) {
+        if ( ! $this->generating ) {
             return;
         }
-        self::$generating = false;
+        $this->generating = false;
 
         remove_filter( 'wpseo_canonical', [ $this, 'rewrite_canonical' ], 10 );
         remove_filter( 'post_link', [ $this, 'rewrite_post_link' ], 10 );
