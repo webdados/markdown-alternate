@@ -10,6 +10,7 @@ namespace MarkdownAlternate;
 use MarkdownAlternate\Discovery\AlternateLinkHandler;
 use MarkdownAlternate\Integration\YoastLlmsTxt;
 use MarkdownAlternate\Router\RewriteHandler;
+use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
 
 /**
  * Main plugin class implementing singleton pattern.
@@ -59,6 +60,12 @@ class Plugin {
         $this->discovery = new AlternateLinkHandler();
         $this->discovery->register();
 
+        PucFactory::buildUpdateChecker(
+            'https://github.com/ProgressPlanner/markdown-alternate/',
+            MARKDOWN_ALTERNATE_FILE,
+            'markdown-alternate'
+        );
+
         add_action( 'plugins_loaded', [ $this, 'register_integrations' ] );
     }
 
@@ -81,7 +88,8 @@ class Plugin {
      * @return void
      */
     public static function activate(): void {
-        RewriteHandler::register_rules();
+        $handler = new RewriteHandler();
+        $handler->add_rewrite_rules();
         flush_rewrite_rules();
     }
 
