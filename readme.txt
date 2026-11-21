@@ -102,6 +102,10 @@ Yes, as an opt-in. With `add_filter( 'markdown_alternate_skip_noindexed', '__ret
 
 == Changelog ==
 
+= Unreleased =
+* Added the `markdown_alternate_is_noindexed` filter, to mark posts noindexed by other means than Yoast SEO
+* With `markdown_alternate_skip_noindexed` on, the WooCommerce cart, checkout and My account pages get no Markdown version
+
 = 1.2.0 =
 * Added WooCommerce product metadata, formatted prices, short descriptions, visible attributes, and variations
 * Bypassed shared and HTTP caching for customer-dependent product output
